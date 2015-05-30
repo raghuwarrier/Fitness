@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Fitness</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_fitness">FitnessActivity</string>
+    <string name="intro_text">Behold, a data dump from the Fitness API! Check the menu for more actions!</string>
+        <string name="action_delete_session">Delete step count data</string>
+
+</resources>
