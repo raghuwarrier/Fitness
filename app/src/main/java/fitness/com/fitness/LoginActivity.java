@@ -2,6 +2,7 @@ package fitness.com.fitness;
 
 
 import android.content.IntentSender;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.app.Activity;
 
@@ -14,7 +15,12 @@ import android.view.View;
 import android.content.IntentSender.SendIntentException;
 import android.content.Intent;
 import android.widget.Toast;
-
+import android.database.Cursor;
+import android.util.Log;
+import android.content.ContentValues;
+import android.app.AlertDialog;
+import java.util.Arrays;
+import android.content.DialogInterface;
 
 /**
  * A login screen that offers login via email/password and via Google+ sign in.
@@ -37,6 +43,13 @@ public class LoginActivity extends Activity implements
 
     private boolean mIntentInProgress;
 
+    private String infoRead;
+
+    private DictionaryOpenHelper dictionaryOpenHelper;
+
+    private SQLiteDatabase db;
+
+    private SQLiteDatabase dbRead;
     /**
      * True if the sign-in button was clicked.  When true, we know to resolve all
      * issues preventing sign-in without waiting.
@@ -47,6 +60,70 @@ public class LoginActivity extends Activity implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login2);
+         dictionaryOpenHelper = new DictionaryOpenHelper(this);
+
+
+
+        dbRead = dictionaryOpenHelper.getReadableDatabase();
+        String queryString =
+                "SELECT * from LAUNCH_INFO";
+        Cursor cursor = dbRead.rawQuery(queryString, null);
+        if (cursor.moveToFirst()){
+            infoRead = cursor.getString(1);
+            Log.i("dfsfd", infoRead);
+        }else{
+            db = dictionaryOpenHelper.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+
+            values.put("KEY", "infoRead");
+            values.put("VALUE", "false");
+            db.insert("LAUNCH_INFO  ", null, values);
+            db.close();
+        }
+
+
+        String queryString1 =
+                "SELECT * from LAUNCH_INFO";
+        Cursor cursor1 = dbRead.rawQuery(queryString, null);
+        if (cursor1.moveToFirst()){
+            infoRead = cursor1.getString(1);
+        Log.i("dfsfd", infoRead);
+    }
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+
+    if(!Boolean.valueOf(infoRead)){
+      //  AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        Log.w("login","fakse");
+        alertDialog.setTitle("Launch info");
+        alertDialog.setMessage("just checking");
+        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+
+         Log.i("login","update");
+
+                String strSQL = "UPDATE LAUNCH_INFO SET VALUE = 'false' where KEY='infoRead'";
+
+                db.execSQL(strSQL);
+
+                db.close();
+
+                dialog.dismiss();
+            }
+
+
+        });
+
+
+    }else{
+
+        alertDialog.setTitle("Launch info");
+        alertDialog.setMessage(":( done finally");
+    }
+        alertDialog.show();
+
+
+
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
