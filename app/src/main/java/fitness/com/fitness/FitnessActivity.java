@@ -40,6 +40,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.content.IntentSender;
 import android.content.Intent;
+
+import com.google.gson.Gson;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.BarGraphSeries;
@@ -219,7 +221,9 @@ public class FitnessActivity extends Activity implements
                 @Override
                 public void run() {
                     TextView text = (TextView)findViewById(R.id.name);
-                    text.setText(strJson);
+                    Gson gson = new Gson();
+                    SampleObject obj = gson.fromJson(strJson, SampleObject.class);
+                    text.setText(obj.getBody()[0].getName());
 
                 }
             });
