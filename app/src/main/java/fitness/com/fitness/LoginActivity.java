@@ -11,6 +11,8 @@ import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
+
+import android.os.Parcelable;
 import android.view.View;
 import android.content.IntentSender.SendIntentException;
 import android.content.Intent;
@@ -21,6 +23,8 @@ import android.content.ContentValues;
 import android.app.AlertDialog;
 import java.util.Arrays;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 
 /**
  * A login screen that offers login via email/password and via Google+ sign in.
@@ -43,7 +47,7 @@ public class LoginActivity extends Activity implements
 
     private boolean mIntentInProgress;
 
-    private String infoRead;
+    private String infoRead = "false";
 
     private DictionaryOpenHelper dictionaryOpenHelper;
 
@@ -59,6 +63,11 @@ public class LoginActivity extends Activity implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        infoRead = pref.getString("infoRead" ,"false");
+        Log.i("infoRead",infoRead);
+
         setContentView(R.layout.activity_login2);
          dictionaryOpenHelper = new DictionaryOpenHelper(this);
 
@@ -100,7 +109,14 @@ public class LoginActivity extends Activity implements
         alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
 
+                SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+                Editor editor = pref.edit();
+                editor.putString("infoRead" ,"true");
+                editor.commit();
+
          Log.i("login","update");
+
+                db = dictionaryOpenHelper.getWritableDatabase();
 
                 String strSQL = "UPDATE LAUNCH_INFO SET VALUE = 'false' where KEY='infoRead'";
 
@@ -171,6 +187,12 @@ public class LoginActivity extends Activity implements
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+Log.i("login","on resume");
+    }
+
+    @Override
     public void onConnectionFailed(ConnectionResult result) {
         if (!mIntentInProgress) {
             if (mSignInClicked && result.hasResolution()) {
@@ -201,6 +223,8 @@ public class LoginActivity extends Activity implements
             }
         }
     }
+
+
 
 
 }
