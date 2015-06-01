@@ -49,11 +49,6 @@ public class LoginActivity extends Activity implements
 
     private String infoRead = "false";
 
-    private DictionaryOpenHelper dictionaryOpenHelper;
-
-    private SQLiteDatabase db;
-
-    private SQLiteDatabase dbRead;
     /**
      * True if the sign-in button was clicked.  When true, we know to resolve all
      * issues preventing sign-in without waiting.
@@ -69,77 +64,11 @@ public class LoginActivity extends Activity implements
         Log.i("infoRead",infoRead);
 
         setContentView(R.layout.activity_login2);
-         dictionaryOpenHelper = new DictionaryOpenHelper(this);
 
-
-
-        dbRead = dictionaryOpenHelper.getReadableDatabase();
-        String queryString =
-                "SELECT * from LAUNCH_INFO";
-        Cursor cursor = dbRead.rawQuery(queryString, null);
-        if (cursor.moveToFirst()){
-            infoRead = cursor.getString(1);
-            Log.i("dfsfd", infoRead);
-        }else{
-            db = dictionaryOpenHelper.getWritableDatabase();
-
-            ContentValues values = new ContentValues();
-
-            values.put("KEY", "infoRead");
-            values.put("VALUE", "false");
-            db.insert("LAUNCH_INFO  ", null, values);
-            db.close();
+        if(!Boolean.valueOf(infoRead)){
+            Intent intent = new Intent(this, WelcomeActivity.class);
+            startActivity(intent);
         }
-
-
-        String queryString1 =
-                "SELECT * from LAUNCH_INFO";
-        Cursor cursor1 = dbRead.rawQuery(queryString, null);
-        if (cursor1.moveToFirst()){
-            infoRead = cursor1.getString(1);
-        Log.i("dfsfd", infoRead);
-    }
-        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-
-    if(!Boolean.valueOf(infoRead)){
-      //  AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        Log.w("login","fakse");
-        alertDialog.setTitle("Launch info");
-        alertDialog.setMessage("just checking");
-        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-
-                SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
-                Editor editor = pref.edit();
-                editor.putString("infoRead" ,"true");
-                editor.commit();
-
-         Log.i("login","update");
-
-                db = dictionaryOpenHelper.getWritableDatabase();
-
-                String strSQL = "UPDATE LAUNCH_INFO SET VALUE = 'false' where KEY='infoRead'";
-
-                db.execSQL(strSQL);
-
-                db.close();
-
-                dialog.dismiss();
-            }
-
-
-        });
-
-
-    }else{
-
-        alertDialog.setTitle("Launch info");
-        alertDialog.setMessage(":( done finally");
-    }
-        alertDialog.show();
-
-
-
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)

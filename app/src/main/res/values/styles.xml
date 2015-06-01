@@ -1,8 +1,35 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
+
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/white</item>
+       </style>
+
+    <style name="CustomActionBarTheme"
+        parent="Theme.AppCompat.Light">
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+
     </style>
+
+    <!-- ActionBar styles -->
+    <style name="MyActionBar"
+        parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:logo">@drawable/images_app</item>
+        <item name="android:label">Welcome</item>
+    </style>
+
+    <style name="welcomeText">
+        <item name="android:fontFamily">Arial,Helvetica,sans-serif</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textColor">#608e28</item>
+        <item name="android:textSize">25dp</item>
+    </style>
+
+
+
 
 </resources>

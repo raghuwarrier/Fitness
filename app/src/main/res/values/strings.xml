@@ -1,10 +1,14 @@
 <resources>
-    <string name="app_name">Fitness</string>
+    <string name="app_name">Fitness Pays</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_fitness">FitnessActivity</string>
     <string name="intro_text">Behold, a data dump from the Fitness API! Check the menu for more actions!</string>
         <string name="action_delete_session">Delete step count data</string>
-
+    <string name="title_activity_welcome">Welcome</string>
+    <string name="welcome_text">Welcome to Fitness Pays</string>
+    <string name="welcome_text2">Be fit and save more money</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="termsandconditions">By continuing , you agree to the Terms of Service and Private Policy</string>
 </resources>
