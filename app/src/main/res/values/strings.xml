@@ -9,6 +9,6 @@
     <string name="title_activity_welcome">Welcome</string>
     <string name="welcome_text">Welcome to Fitness Pays</string>
     <string name="welcome_text2">Be fit and save more money</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Terms</string>
     <string name="termsandconditions">By continuing , you agree to the Terms of Service and Private Policy</string>
 </resources>
