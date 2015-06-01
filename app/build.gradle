@@ -25,5 +25,5 @@ dependencies {
     compile 'com.google.android.gms:play-services:7.5.0'
     compile 'net.bluemix:bluemix-cloud-connectors:0.0.1.RC3'
     compile 'com.jjoe64:graphview:4.0.1'
-    compile 'gson-2.2.jar'
+    compile 'com.google.code.gson:gson:2.2'
 }
