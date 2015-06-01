@@ -222,8 +222,10 @@ public class FitnessActivity extends Activity implements
                 public void run() {
                     TextView text = (TextView)findViewById(R.id.name);
                     Gson gson = new Gson();
+/*
                     SampleObject obj = gson.fromJson(strJson, SampleObject.class);
                     text.setText(obj.getBody()[0].getName());
+*/
 
                 }
             });
