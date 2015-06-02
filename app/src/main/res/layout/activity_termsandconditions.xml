@@ -17,7 +17,7 @@
         android:layout_below="@+id/tool_bar"
         android:layout_centerHorizontal="true" />
 
-    <TextView android:text="Toggle to Agree" android:layout_width="wrap_content"
+    <TextView android:text="Agree to proceed" android:layout_width="wrap_content"
         style="@style/welcomeText"
         android:layout_height="wrap_content"
         android:id="@+id/toggletext"
@@ -30,7 +30,7 @@
 
     <ToggleButton
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@android:dimen/app_icon_size"
         android:layout_below="@id/toggletext"
         android:layout_centerHorizontal="true"
         android:background="@drawable/toggle_off"
