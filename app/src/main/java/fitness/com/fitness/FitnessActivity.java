@@ -1,7 +1,9 @@
 package fitness.com.fitness;
 
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -36,6 +38,7 @@ import java.util.Date;
 import java.util.List;
 import com.google.android.gms.fitness.data.Bucket;
 import android.app.Activity;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.IntentSender;
@@ -53,8 +56,8 @@ import android.graphics.Color;
 
 
 
-public class FitnessActivity extends Activity implements
-        GoogleApiClient.ConnectionCallbacks , GoogleApiClient.OnConnectionFailedListener{
+public class FitnessActivity extends ActionBarActivity implements
+        GoogleApiClient.ConnectionCallbacks , GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient mClient = null;
 
@@ -64,17 +67,34 @@ public class FitnessActivity extends Activity implements
 
     private String strJson = null;
 
+    private Toolbar toolbar;
+
+    private String infoRead = "false";
+
     SampleAlarmReceiver alarmReceiver = new SampleAlarmReceiver();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fitness);
-        // This method sets up our custom logger, which will print all log messages to the device
-        // screen, as well as to adb logcat.
 
-        buildFitnessClient();
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        infoRead = pref.getString("infoRead" ,"false");
+        Log.i("infoRead", infoRead);
 
-        GraphView graph = (GraphView) findViewById(R.id.graph);
+
+        if(!Boolean.valueOf(infoRead)){
+            Intent intent = new Intent(this, WelcomeActivity.class);
+            startActivity(intent);
+        }else{
+            toolbar = (Toolbar) findViewById(R.id.tool_bar); // Attaching the layout to the toolbar object
+            setSupportActionBar(toolbar);
+
+            // This method sets up our custom logger, which will print all log messages to the device
+            // screen, as well as to adb logcat.
+
+            buildFitnessClient();
+
+    /*    GraphView graph = (GraphView) findViewById(R.id.graph);
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().setYAxisBoundsManual(true);
         graph.getViewport().setMinX(3);
@@ -91,7 +111,14 @@ public class FitnessActivity extends Activity implements
         series.setColor(Color.RED);
 
 
-        graph.addSeries(series);
+        graph.addSeries(series); */
+        }
+
+
+
+
+
+
 
     }
 
@@ -220,7 +247,7 @@ public class FitnessActivity extends Activity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    TextView text = (TextView)findViewById(R.id.name);
+                    TextView text = (TextView)findViewById(R.id.labelaccount);
                     Gson gson = new Gson();
                     SampleObject obj = gson.fromJson(strJson, SampleObject.class);
                     text.setText(obj.getBody()[0].getName());
