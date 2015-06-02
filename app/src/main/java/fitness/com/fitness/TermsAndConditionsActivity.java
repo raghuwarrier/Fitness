@@ -114,7 +114,7 @@ public class TermsAndConditionsActivity extends ActionBarActivity implements Goo
         Log.i(TAG,"Connected");
         mSignInClicked = false;
         Toast.makeText(this, "User is connected!", Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(this, FitnessActivity.class);
+        Intent intent = new Intent(this, LinkAccountActivity.class);
         startActivity(intent);
     }
 
