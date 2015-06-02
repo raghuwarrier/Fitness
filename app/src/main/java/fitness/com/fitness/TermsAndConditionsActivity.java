@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
@@ -100,13 +101,13 @@ public class TermsAndConditionsActivity extends ActionBarActivity implements Goo
 
     }
 
-    public void onRadioButtonClicked(View view){
+    /*public void onRadioButtonClicked(View view){
         if(view.getId()==R.id.agree){
             findViewById(R.id.plus_sign_in_button).setEnabled(true);
         }else{
             findViewById(R.id.plus_sign_in_button).setEnabled(false);
         }
-    }
+    }*/
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -152,6 +153,17 @@ public class TermsAndConditionsActivity extends ActionBarActivity implements Goo
             if (!mGoogleApiClient.isConnected()) {
                 mGoogleApiClient.reconnect();
             }
+        }
+    }
+
+    public void toggled(View view){
+        ToggleButton toggleButton = (ToggleButton)view;
+        if(toggleButton.isChecked()){
+            toggleButton.setBackground(getResources().getDrawable(R.drawable.toggle_on));
+            findViewById(R.id.plus_sign_in_button).setEnabled(true);
+        }else {
+            toggleButton.setBackground(getResources().getDrawable(R.drawable.toggle_off));
+            findViewById(R.id.plus_sign_in_button).setEnabled(false);
         }
     }
 }

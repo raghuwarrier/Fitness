@@ -21,6 +21,9 @@ public class WelcomeActivity extends ActionBarActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
         toolbar = (Toolbar) findViewById(R.id.tool_bar); // Attaching the layout to the toolbar object
+        toolbar.setLogo(R.mipmap.ic_launcher);
+        toolbar.setTitle("");
+        
         setSupportActionBar(toolbar);
         findViewById(R.id.next).setOnClickListener(this);
 
