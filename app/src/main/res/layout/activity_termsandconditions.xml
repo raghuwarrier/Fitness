@@ -28,17 +28,19 @@
         android:textSize="@dimen/abc_text_size_small_material"
         android:textColorLink="@color/primary_dark_material_dark" />
 
-    <ToggleButton
+    <Switch android:id="@+id/swtch"
         android:layout_width="wrap_content"
-        android:layout_height="@android:dimen/app_icon_size"
-        android:layout_below="@id/toggletext"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/toggle_off"
+        android:layout_height="wrap_content"
         android:textOn="Agree"
         android:textOff="Disagree"
-        android:onClick="toggled"
-        android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
-        />
+        android:layout_below="@id/toggletext"
+        android:switchPadding="1dp"
+        android:onClick="togglestatehandler"
+        android:thumb="@drawable/customswitchselector"
+        android:track="@drawable/customtrack"
+        android:thumbTextPadding="2dp"
+        android:textStyle="bold|italic"
+        android:typeface="sans"/>
 
 
     <!--
