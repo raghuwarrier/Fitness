@@ -1,28 +1,241 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+<RelativeLayout
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="fitness.com.fitness.FitnessActivity">
+    android:layout_height="match_parent"  tools:context="fitness.com.fitness.FitnessActivity"
+    xmlns:circularview="http://fitness.com.fitness"
+    >
 
-    <TextView
-        android:text="@string/intro_text"
+    <include
+        android:id="@+id/tool_bar"
+        layout="@layout/toolbar"
+        ></include>
+<!--
+    <fitness.com.fitness.CircularView
+        android:id="@+id/circularview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        circularview:startDeg="0"
+         >
+    <View
+        android:id="@+id/center"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+
+        <TextView android:text="Account Balance" android:layout_width="100dp"
+            style="@style/welcomeText"
+            android:layout_height="100dp"
+            android:id="@+id/labelaccount"
+            android:textSize="20dp"
+            android:layout_below="@+id/imageView"
+            android:background="@drawable/circulartext"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            />
+
+        <TextView android:text="Insurance Discount" android:layout_width="wrap_content"
+            style="@style/welcomeText"
+            android:layout_height="50dp"
+            android:id="@+id/labelinsurance"
+            android:textSize="20dp"
+            android:layout_below="@+id/imageView"
+            android:background="@drawable/circulartext"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            />
+
+        <TextView android:text="Peer comparison" android:layout_width="wrap_content"
+            style="@style/welcomeText"
+            android:layout_height="50dp"
+            android:id="@+id/peer"
+            android:textSize="20dp"
+            android:layout_below="@+id/imageView"
+            android:background="@drawable/circulartext"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            />
+
+    <ImageView
+        android:id="@+id/imgv1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/name"/>
+        android:src="@android:drawable/ic_delete"
+        />
+    </fitness.com.fitness.CircularView > -->
 
-    <com.jjoe64.graphview.GraphView
+    <ImageView
+        android:id="@+id/profileImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tool_bar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="40dp"
+         />
+
+
+ <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/profileImage"
+        android:layout_alignParentStart="true">
+
+        <TableLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tool_bar"
+            android:id="@+id/linearlayout1"
+            android:background="@drawable/gradient2"
+            android:layout_alignParentStart="true"
+            android:layout_margin="10dp"
+            >
+            <TableRow android:padding="5dip">
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView"
+                android:src="@drawable/balance"
+                android:layout_gravity="center_vertical"
+                android:layout_below="@+id/welcomeMessage"
+                android:layout_marginRight="10dp"/>
+
+            <TextView android:text="Account Balance" android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:layout_height="50dp"
+                android:id="@+id/labelaccount"
+                android:textSize="15dp"
+                android:layout_below="@+id/imageView"
+                android:layout_gravity="center_vertical"
+                android:paddingTop="10dp"/>
+
+
+            <TextView android:text="" android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:layout_height="50dp"
+                android:id="@+id/balance"
+                android:textSize="25dp"
+                android:layout_below="@+id/imageView"
+                android:layout_gravity="center_vertical"
+                android:paddingTop="10dp"
+                android:layout_marginLeft="15dp"/>
+            </TableRow>
+        </TableLayout>
+     <TableLayout
+         android:orientation="horizontal"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/tool_bar"
+         android:id="@+id/linearlayout2"
+         android:background="@drawable/gradient2"
+         android:layout_alignParentStart="true"
+         android:layout_margin="10dp"
+         >
+     <TableRow android:padding="5dip">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView2"
+                android:src="@drawable/discount"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="center_vertical"
+                 />
+
+            <TextView android:text="Insurance Discount" android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:layout_height="50dp"
+                android:id="@+id/labelinsurance"
+                android:textSize="15dp"
+                android:layout_below="@+id/imageView"
+                android:layout_gravity="center_vertical"
+                android:paddingTop="10dp"
+                />
+
+
+            <TextView android:text="" android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:layout_height="50dp"
+                android:id="@+id/discount"
+                android:textSize="25dp"
+                android:layout_below="@+id/imageView"
+                android:layout_gravity="center_vertical"
+                android:paddingTop="10dp"
+
+                android:layout_marginLeft="15dp"/>
+
+        </TableRow>
+     </TableLayout>
+     <TableLayout
+         android:orientation="horizontal"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/tool_bar"
+         android:id="@+id/linearlayout3"
+         android:background="@drawable/gradient2"
+         android:layout_alignParentStart="true"
+         android:layout_margin="10dp"
+         >
+     <TableRow android:padding="5dip">
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView3"
+                android:src="@drawable/peer"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="center_vertical"
+                />
+
+            <TextView android:text="Peer Comparison" android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:layout_height="50dp"
+                android:id="@+id/labelpeer"
+                android:textSize="15dp"
+                android:layout_below="@+id/imageView"
+                android:layout_gravity="center_vertical"
+                android:paddingTop="10dp"
+                />
+
+
+            <TextView android:text="$ 126,35" android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:layout_height="50dp"
+                android:id="@+id/peer"
+                android:textSize="25dp"
+                android:layout_below="@+id/imageView"
+                android:layout_gravity="center_vertical"
+                android:paddingTop="10dp"
+
+                android:layout_marginLeft="15dp"/>
+
+        </TableRow>
+     </TableLayout>
+    </LinearLayout>
+
+
+
+    <!-- <com.jjoe64.graphview.GraphView
         android:layout_width="match_parent"
         android:layout_height="200dip"
-        android:id="@+id/graph" />
+        android:id="@+id/graph" /> -->
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
 
-    </ScrollView>
+
+
 
 
 
 </RelativeLayout>
+</ScrollView>

@@ -1,0 +1,70 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context="fitness.com.fitness.LinkAccountActivity">
+
+    <include
+        android:id="@+id/tool_bar"
+        layout="@layout/toolbar"
+        ></include>
+
+    <TextView android:text="Lets get started with linking a health savings account." android:layout_width="wrap_content"
+        style="@style/welcomeText"
+        android:layout_height="wrap_content"
+        android:id="@+id/label"
+        android:layout_below="@+id/tool_bar"/>
+
+    <TextView android:text="Already have a Health Saving Account with ABN??Enter your account below" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/existingAccount"
+        android:textSize="15dp"
+        android:gravity="center"
+        android:textColor="@color/button_material_dark"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/label"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/accountNumber"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_below="@+id/existingAccount"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Link"
+        android:id="@+id/link"
+        android:background="@drawable/gradient_button"
+        android:layout_margin="15dp"
+        android:layout_below="@+id/accountNumber"
+        />
+
+    <TextView android:text="No Health Savings Account with ABN yet" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/labelOR"
+        android:gravity="center"
+        android:textSize="15dp"
+        android:textColor="@color/button_material_dark"
+        android:layout_below="@+id/link"
+        android:layout_centerHorizontal="true" />
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create Account"
+        android:id="@+id/newAccount"
+        android:background="@drawable/gradient_button"
+        android:layout_margin="15dp"
+        android:layout_below="@+id/labelOR"
+        />
+
+</RelativeLayout>
+</ScrollView>

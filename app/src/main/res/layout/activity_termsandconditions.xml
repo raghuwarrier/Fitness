@@ -1,3 +1,4 @@
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -35,12 +36,12 @@
         android:textOff="Disagree"
         android:layout_below="@id/toggletext"
         android:switchPadding="1dp"
-        android:onClick="togglestatehandler"
         android:thumb="@drawable/customswitchselector"
         android:track="@drawable/customtrack"
         android:thumbTextPadding="2dp"
         android:textStyle="bold|italic"
-        android:typeface="sans"/>
+        android:typeface="sans"
+        android:layout_centerHorizontal="true"/>
 
 
     <!--
