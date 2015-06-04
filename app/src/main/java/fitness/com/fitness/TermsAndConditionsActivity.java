@@ -2,15 +2,24 @@ package fitness.com.fitness;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -20,10 +29,14 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
+import com.google.android.gms.plus.model.people.Person;
 
 import org.xmlpull.v1.XmlPullParserException;
+import java.net.URL;
+import java.net.HttpURLConnection;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 
 public class TermsAndConditionsActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -39,6 +52,9 @@ public class TermsAndConditionsActivity extends ActionBarActivity implements Goo
 
     //* Request code used to invoke sign in user interactions. */
     private static final int RC_SIGN_IN = 0;
+
+
+    Switch switchbtn;
 
     /**
      * True if the sign-in button was clicked.  When true, we know to resolve all
@@ -60,14 +76,52 @@ public class TermsAndConditionsActivity extends ActionBarActivity implements Goo
                 .addApi(Plus.API)
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
+                .addScope(Plus.SCOPE_PLUS_PROFILE)
                 .build();
        SignInButton button = (SignInButton)findViewById( R.id.plus_sign_in_button);
         button.setEnabled(false);
         toolbar = (Toolbar) findViewById(R.id.tool_bar); // Attaching the layout to the toolbar object
 
         setSupportActionBar(toolbar);
+        switchbtn = (Switch)findViewById(R.id.swtch);
+        Log.i(TAG, (String) switchbtn.getTextOff());
+        switchbtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+
+                if (isChecked) {
+                    Log.d("onchange", String.valueOf(isChecked));
+                    findViewById(R.id.plus_sign_in_button).setEnabled(true);
+                } else {
+                    findViewById(R.id.plus_sign_in_button).setEnabled(false);
+                    Log.d("onchange", String.valueOf(isChecked));
+                }
+            }
+        });
+        applyStyle(switchbtn.getTextOn(), switchbtn.getTextOff());
+
+
         findViewById(R.id.plus_sign_in_button).setOnClickListener(this);
     }
+
+    public void applyStyle(CharSequence switchTxtOn, CharSequence switchTxtOff){
+
+        Spannable styleText = new SpannableString(switchTxtOn);
+        StyleSpan style = new StyleSpan(Typeface.NORMAL);
+        styleText.setSpan(style, 0, switchTxtOn.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+
+        styleText.setSpan(new ForegroundColorSpan(Color.WHITE), 0, switchTxtOn.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        switchbtn.setTextOn(styleText);
+
+        styleText = new SpannableString(switchTxtOff);
+        styleText.setSpan(style, 0, switchTxtOff.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        styleText.setSpan(new ForegroundColorSpan(Color.WHITE), 0, switchTxtOff.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        switchbtn.setTextOff(styleText);
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -101,13 +155,7 @@ public class TermsAndConditionsActivity extends ActionBarActivity implements Goo
 
     }
 
-    /*public void onRadioButtonClicked(View view){
-        if(view.getId()==R.id.agree){
-            findViewById(R.id.plus_sign_in_button).setEnabled(true);
-        }else{
-            findViewById(R.id.plus_sign_in_button).setEnabled(false);
-        }
-    }*/
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -116,7 +164,10 @@ public class TermsAndConditionsActivity extends ActionBarActivity implements Goo
         Toast.makeText(this, "User is connected!", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LinkAccountActivity.class);
         startActivity(intent);
+
     }
+
+
 
     @Override
     public void onConnectionSuspended(int i) {
