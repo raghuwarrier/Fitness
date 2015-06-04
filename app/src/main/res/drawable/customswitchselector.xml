@@ -10,8 +10,8 @@
                 android:endColor="#00897B"
                 android:angle="270"/>
             <corners android:radius="15dp"/>
-            <size android:width="18dp"
-                android:height="22dp" />
+            <size android:width="40dp"
+                android:height="25dp" />
         </shape>
     </item>
 
@@ -25,8 +25,8 @@
                 android:endColor="#EF5350"
                 android:angle="270"/>
             <corners android:radius="15dp"/>
-            <size android:width="18dp"
-                android:height="22dp" />
+            <size android:width="40dp"
+                android:height="25dp" />
         </shape>
     </item>
 </selector>
