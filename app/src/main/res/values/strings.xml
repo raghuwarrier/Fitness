@@ -8,7 +8,12 @@
         <string name="action_delete_session">Delete step count data</string>
     <string name="title_activity_welcome">Welcome</string>
     <string name="welcome_text">Welcome to Fitness Pays</string>
-    <string name="welcome_text2">Be fit and save more money</string>
+    <string name="welcome_text2">FitnessPays is an unique application which helps you realise the benefits of all those fitness workouts you have been doing.</string>
+    <string name="welcome_text3">Sign in with your Google account and know how you can save money on your next health insurance premium! You can also earn more interest on your savings account if you are already an ABN AMRO customer</string>
     <string name="title_activity_main">Terms</string>
     <string name="termsandconditions">By continuing , you agree to the Terms of Service and Private Policy</string>
+    <string name="title_activity_link_account">LinkAccountActivity</string>
+    <string name="title_activity_feedback">FeedbackActivity</string>
+    <string name="title_activity_savings_graph">SavingsGraphActivity</string>
+    <string name="title_activity_user_profile">UserProfileActivity</string>
 </resources>
