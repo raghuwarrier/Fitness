@@ -30,6 +30,7 @@
         android:layout_height="wrap_content"
         android:inputType="number"
         android:ems="10"
+        android:textColor="@color/button_material_dark"
         android:id="@+id/accountNumber"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
