@@ -65,10 +65,9 @@ public class LoginActivity extends Activity implements
 
         setContentView(R.layout.activity_login2);
 
-        if(!Boolean.valueOf(infoRead)){
-            Intent intent = new Intent(this, WelcomeActivity.class);
-            startActivity(intent);
-        }
+
+
+
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)

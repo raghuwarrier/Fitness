@@ -50,51 +50,7 @@ public class SavingsGraphActivity extends ActionBarActivity {
         toolbar = (Toolbar) findViewById(R.id.tool_bar); // Attaching the layout to the toolbar object
         setSupportActionBar(toolbar);
 
-          GraphView graph = (GraphView) findViewById(R.id.graph);
-        graph.getViewport().setXAxisBoundsManual(true);
-        graph.getViewport().setYAxisBoundsManual(true);
-        graph.getGridLabelRenderer().setHorizontalAxisTitleColor(getResources().getColor(R.color.colorPrimaryDark));
-        graph.getGridLabelRenderer().setHorizontalLabelsColor(getResources().getColor(R.color.colorPrimaryDark));
-        graph.getGridLabelRenderer().setVerticalLabelsColor(getResources().getColor(R.color.colorPrimaryDark));
-        graph.getGridLabelRenderer().setVerticalAxisTitleColor(getResources().getColor(R.color.colorPrimaryDark));
-        graph.getGridLabelRenderer().setVerticalAxisTitle("Balance over months");
-        graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
-            @Override
-            public String formatLabel(double value, boolean isValueX) {
-                if (isValueX) {
-                    switch ((int) value) {
-                        case 0:
-                            return "Jan";
-                        case 1:
-                            return "Feb";
-                        case 2:
-                            return "Mar";
-                        case 3:
-                            return "Apr";
-                        case 4:
-                            return "May";
 
-                    }
-                    return super.formatLabel(value, isValueX) ;
-                } else {
-                    return super.formatLabel(value, isValueX) + " €";
-                }
-            }
-
-
-        });
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{
-                new DataPoint(0, 5),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
-        });
-
-        series.setColor(Color.RED);
-
-
-        graph.addSeries(series);
     }
 
     @Override
@@ -122,15 +78,15 @@ public class SavingsGraphActivity extends ActionBarActivity {
     private class GetBalanceData extends AsyncTask<Void,Void,Void> {
         protected Void doInBackground(Void... params){
             try {
-                strJson = loadFromNetwork("http://fitnesspayseclipse.mybluemix.net/api/fitnesspays/customer/fitnessstats?_id="+email);
+                strJson = loadFromNetwork("http://fitnesspaysapp.eu-gb.mybluemix.net/api/fitnesspays/customer/insurance/history?_id="+email);
                 Log.i(TAG,strJson);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView text = (TextView)findViewById(R.id.balance);
                         Gson gson = new Gson();
-                        Statistics obj = gson.fromJson(strJson, Statistics.class);
-                        text.setText("€"+obj.getBalance());
+                        SavingsList obj = gson.fromJson(strJson, SavingsList.class);
+
+                        createGraph(obj);
 
                     }
                 });
@@ -158,6 +114,59 @@ public class SavingsGraphActivity extends ActionBarActivity {
         return str;
     }
 
+
+    public void createGraph(SavingsList savings){
+        GraphView graph = (GraphView) findViewById(R.id.graph);
+
+        graph.getGridLabelRenderer().setHorizontalAxisTitleColor(getResources().getColor(R.color.colorPrimaryDark));
+        graph.getGridLabelRenderer().setHorizontalLabelsColor(getResources().getColor(R.color.colorPrimaryDark));
+        graph.getGridLabelRenderer().setVerticalLabelsColor(getResources().getColor(R.color.colorPrimaryDark));
+        graph.getGridLabelRenderer().setVerticalAxisTitleColor(getResources().getColor(R.color.colorPrimaryDark));
+        graph.getGridLabelRenderer().setVerticalAxisTitle("Balance over months");
+        graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+            @Override
+            public String formatLabel(double value, boolean isValueX) {
+                if (isValueX) {
+                    switch ((int) value) {
+                        case 0:
+                            return "Jan";
+                        case 1:
+                            return "Feb";
+                        case 2:
+                            return "Mar";
+                        case 3:
+                            return "Apr";
+                        case 4:
+                            return "May";
+
+                    }
+                    return super.formatLabel(value, isValueX);
+                } else {
+                    return super.formatLabel(value, isValueX) + " €";
+                }
+            }
+
+
+        });
+
+        DataPoint[] dataPoints = new DataPoint[savings.getSavings().size()];
+        int i=0;
+        for(Savings saving : savings.getSavings()){
+            Log.i(TAG,saving.getPeriodValueName());
+            DataPoint dataPoint = new DataPoint(getTimeUnit(saving.getPeriodValueName()),Double.valueOf(saving.getBalance()));
+            dataPoints[i++] = dataPoint;
+
+        }
+
+
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(dataPoints);
+
+
+        series.setColor(Color.RED);
+
+
+        graph.addSeries(series);
+    }
     /**
      * Given a string representation of a URL, sets up a connection and gets
      * an input stream.
@@ -193,6 +202,35 @@ public class SavingsGraphActivity extends ActionBarActivity {
             builder.append(line);
         reader.close();
         return builder.toString();
+    }
+
+    private int getTimeUnit(String month){
+        if(month.equals("January")){
+            return 0;
+        }else if(month.equals("February")){
+            return 1;
+        }else if(month.equals("March")){
+            return 2;
+        }else if(month.equals("April")){
+            return 3;
+        }else if(month.equals("May")){
+            return 4;
+        }else if(month.equals("June")){
+            return 5;
+        }else if(month.equals("July")){
+            return 6;
+        }else if(month.equals("August")){
+            return 7;
+        }else if(month.equals("September")){
+            return 8;
+        }else if(month.equals("October")){
+            return 9;
+        }else if(month.equals("November")){
+            return 10;
+        }else if(month.equals("December")){
+            return 11;
+        }
+        return 0;
     }
 
 }

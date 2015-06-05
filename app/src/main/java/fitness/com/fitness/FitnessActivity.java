@@ -7,13 +7,13 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,50 +21,67 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.gms.common.api.Result;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Result;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessStatusCodes;
 import com.google.android.gms.fitness.data.Bucket;
 import com.google.android.gms.fitness.data.DataSet;
+import com.google.android.gms.fitness.data.DataSource;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.request.DataSourcesRequest;
 import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.android.gms.fitness.result.DataSourcesResult;
-import com.google.android.gms.fitness.result.DataTypeResult;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
-import com.google.android.gms.wearable.DataApi;
 import com.google.gson.Gson;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.HashSet;
-import com.google.android.gms.fitness.data.DataSource;
-import static com.google.android.gms.fitness.data.DataType.AGGREGATE_INPUT_TYPES;
 
 
 public class FitnessActivity extends ActionBarActivity implements
-        GoogleApiClient.ConnectionCallbacks , GoogleApiClient.OnConnectionFailedListener,OnClickListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnClickListener {
 
     private GoogleApiClient mClient = null;
     private GoogleApiClient mFitnessClient = null;
@@ -82,17 +99,20 @@ public class FitnessActivity extends ActionBarActivity implements
 
     private final int PROFILE_PIC_SIZE = 150;
 
-    private  OutputStreamWriter out = null;
+    private OutputStreamWriter out = null;
 
-    private  HttpURLConnection httpCon;
+    private HttpURLConnection httpCon;
 
     private List<Device> devices = new ArrayList<Device>();
 
 
     private String email;
 
+    private byte[] imageBytes;
+
 
     SampleAlarmReceiver alarmReceiver = new SampleAlarmReceiver();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,10 +123,10 @@ public class FitnessActivity extends ActionBarActivity implements
         Log.i("infoRead", infoRead);
 
 
-        if(!Boolean.valueOf(infoRead)){
+        if (!Boolean.valueOf(infoRead)) {
             Intent intent = new Intent(this, WelcomeActivity.class);
             startActivity(intent);
-        }else{
+        } else {
             toolbar = (Toolbar) findViewById(R.id.tool_bar); // Attaching the layout to the toolbar object
             setSupportActionBar(toolbar);
 
@@ -133,12 +153,9 @@ public class FitnessActivity extends ActionBarActivity implements
 
 
         graph.addSeries(series); */
+
+
         }
-
-
-
-
-
 
 
     }
@@ -155,7 +172,7 @@ public class FitnessActivity extends ActionBarActivity implements
                 .addScope(Fitness.SCOPE_LOCATION_READ)
                 .addScope(Fitness.SCOPE_ACTIVITY_READ)
                 .addScope(Fitness.SCOPE_BODY_READ_WRITE)
-                 .addConnectionCallbacks(this)
+                .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .addScope(Plus.SCOPE_PLUS_PROFILE)
@@ -179,7 +196,7 @@ public class FitnessActivity extends ActionBarActivity implements
         Log.i(TAG, "Connection failed" + FitnessStatusCodes.getStatusCodeString(connectionResult.getErrorCode()));
         try {
             connectionResult.startResolutionForResult(FitnessActivity.this, 1);
-        }catch (IntentSender.SendIntentException e) {
+        } catch (IntentSender.SendIntentException e) {
             Log.e(TAG,
                     "Exception while starting resolution activity", e);
         }
@@ -188,13 +205,24 @@ public class FitnessActivity extends ActionBarActivity implements
     @Override
     public void onClick(View v) {
 
-       if(v.getId()==R.id.linearlayout3){
+        if (v.getId() == R.id.linearlayout3) {
 
-           Intent intent = new Intent(this, FeedbackActivity.class);
-           startActivity(intent);
-       // Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-         //   if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-           //     startActivityForResult(takePictureIntent, 1);
+            Intent intent = new Intent(this, FeedbackActivity.class);
+            startActivity(intent);
+            // Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            //   if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            //     startActivityForResult(takePictureIntent, 1);
+            //}
+        }
+
+        if (v.getId() == R.id.linearlayout1) {
+
+            Intent intent = new Intent(this, SavingsGraphActivity.class);
+            intent.putExtra("email", email);
+            startActivity(intent);
+            // Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            //   if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            //     startActivityForResult(takePictureIntent, 1);
             //}
         }
 
@@ -212,14 +240,12 @@ public class FitnessActivity extends ActionBarActivity implements
             // the read request.
 
 
-
-
             Fitness.SensorsApi.findDataSources(mClient, new DataSourcesRequest.Builder()
                     .setDataTypes(
                             DataType.TYPE_LOCATION_SAMPLE,
                             DataType.TYPE_STEP_COUNT_DELTA,
                             DataType.TYPE_DISTANCE_DELTA,
-                            DataType.TYPE_HEART_RATE_BPM )
+                            DataType.TYPE_HEART_RATE_BPM)
                     .setDataSourceTypes(DataSource.TYPE_RAW, DataSource.TYPE_DERIVED)
 
                     .build())
@@ -228,7 +254,7 @@ public class FitnessActivity extends ActionBarActivity implements
                         @Override
                         public void onResult(Result dataSourcesResult) {
 
-                          Log.i(TAG, ((DataSourcesResult) dataSourcesResult).getDataSources().toString());
+                            Log.i(TAG, ((DataSourcesResult) dataSourcesResult).getDataSources().toString());
 
                             for (DataSource dataSource : ((DataSourcesResult) dataSourcesResult).getDataSources()) {
                                 com.google.android.gms.fitness.data.Device device = dataSource.getDevice();
@@ -276,7 +302,6 @@ public class FitnessActivity extends ActionBarActivity implements
     }
 
 
-
     private class InsertUserData extends AsyncTask<Void, Void, Void> {
         protected Void doInBackground(Void... params) {
 
@@ -287,50 +312,52 @@ public class FitnessActivity extends ActionBarActivity implements
     }
 
 
-    private class GetBalanceData extends AsyncTask<Void,Void,Void>{
-        protected Void doInBackground(Void... params){
+    private class GetBalanceData extends AsyncTask<Void, Void, Void> {
+        protected Void doInBackground(Void... params) {
+
+
             try {
-                  strJson = loadFromNetwork("http://fitnesspayseclipse.mybluemix.net/api/fitnesspays/customer/fitnessstats?_id="+email);
-            Log.i(TAG,strJson);
-                 runOnUiThread(new Runnable() {
-                     @Override
-                     public void run() {
-                    TextView text = (TextView)findViewById(R.id.balance);
-                         Gson gson = new Gson();
-                       Statistics obj = gson.fromJson(strJson, Statistics.class);
-                  text.setText("€"+obj.getBalance());
+                strJson = loadFromNetwork("http://fitnesspaysapp.eu-gb.mybluemix.net/api/fitnesspays/customer/fitnessstats?_id=" + email);
+                Log.i(TAG, strJson);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TextView text = (TextView) findViewById(R.id.balance);
+                        Gson gson = new Gson();
+                        Statistics obj = gson.fromJson(strJson, Statistics.class);
+                        text.setText("€" + obj.getBalance());
 
                     }
                 });
 
 
-                   }catch(IOException exc){
-                     Log.e(TAG,exc.getMessage());
-                 }
+            } catch (IOException exc) {
+                Log.e(TAG, exc.getMessage());
+            }
             return null;
         }
     }
 
 
-    private class GetInsuranceDiscount extends AsyncTask<Void,Void,Void>{
-        protected Void doInBackground(Void... params){
+    private class GetInsuranceDiscount extends AsyncTask<Void, Void, Void> {
+        protected Void doInBackground(Void... params) {
             try {
-                strJson = loadFromNetwork("http://fitnesspayseclipse.mybluemix.net/api/fitnesspays/customer/fitnesspremium?_id="+email);
-                Log.i(TAG,strJson);
+                strJson = loadFromNetwork("http://fitnesspaysapp.eu-gb.mybluemix.net/api/fitnesspays/customer/fitnesspremium?_id=" + email);
+                Log.i(TAG, strJson);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView text = (TextView)findViewById(R.id.discount);
+                        TextView text = (TextView) findViewById(R.id.discount);
                         Gson gson = new Gson();
                         Premium obj = gson.fromJson(strJson, Premium.class);
-                        text.setText(obj.getPremiumValue()+"%");
+                        text.setText(obj.getPremiumValue() + "%");
 
                     }
                 });
 
 
-            }catch(IOException exc){
-                Log.e(TAG,exc.getMessage());
+            } catch (IOException exc) {
+                Log.e(TAG, exc.getMessage());
             }
             return null;
         }
@@ -401,7 +428,7 @@ public class FitnessActivity extends ActionBarActivity implements
 
         for (com.google.android.gms.fitness.data.DataPoint dp : dataSet.getDataPoints()) {
 
-            if(dp.getOriginalDataSource()!=null) {
+            if (dp.getOriginalDataSource() != null) {
                 device = new Device();
                 device.setDeviceId(dp.getOriginalDataSource().getDevice().toString());
                 Log.i(TAG, "Data point:" + dp.getOriginalDataSource().getDevice());
@@ -410,32 +437,32 @@ public class FitnessActivity extends ActionBarActivity implements
             Log.i(TAG, "\tType: " + dp.getDataType().getName());
             Log.i(TAG, "\tStart: " + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
             Log.i(TAG, "\tEnd: " + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)));
-            for(Field field : dp.getDataType().getFields()) {
+            for (Field field : dp.getDataType().getFields()) {
                 Log.i(TAG, "\tField: " + field.getName() +
                         " Value: " + dp.getValue(field));
             }
         }
 
 
-     //   try {
-          //  strJson = loadFromNetwork("http://fitnesspayseclipse.mybluemix.net/api/favorites/fitness");
+        //   try {
+        //  strJson = loadFromNetwork("http://fitnesspayseclipse.mybluemix.net/api/favorites/fitness");
 
 //            Log.i(TAG,strJson);
-         //   runOnUiThread(new Runnable() {
-           //     @Override
-           //     public void run() {
-                //    TextView text = (TextView)findViewById(R.id.labelaccount);
-           //         Gson gson = new Gson();
-             //       SampleObject obj = gson.fromJson(strJson, SampleObject.class);
-                  //  text.setText(obj.getBody()[0].getName());
+        //   runOnUiThread(new Runnable() {
+        //     @Override
+        //     public void run() {
+        //    TextView text = (TextView)findViewById(R.id.labelaccount);
+        //         Gson gson = new Gson();
+        //       SampleObject obj = gson.fromJson(strJson, SampleObject.class);
+        //  text.setText(obj.getBody()[0].getName());
 
-            //    }
-            //});
+        //    }
+        //});
 
-     //
-     //   }catch(IOException exc){
-       //     Log.e(TAG,exc.getMessage());
-       // }
+        //
+        //   }catch(IOException exc){
+        //     Log.e(TAG,exc.getMessage());
+        // }
 
     }
 
@@ -469,7 +496,10 @@ public class FitnessActivity extends ActionBarActivity implements
             return true;
         }
 
-        if(id==R.id.action_settings){
+        if (id == R.id.action_settings) {
+
+            //    Intent intent = new Intent(this, FeedbackActivity.class);
+            //   startActivity(intent);
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                 takePictureIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
@@ -486,27 +516,25 @@ public class FitnessActivity extends ActionBarActivity implements
         // Now you can make calls to the Fitness APIs.  What to do?
         // Look at some data!!
 
-               //    TextView text = (TextView)findViewById(R.id.labelaccount);
-                //  text.setText(obj.getBody()[0].getName());
+        //    TextView text = (TextView)findViewById(R.id.labelaccount);
+        //  text.setText(obj.getBody()[0].getName());
 
 
-
-
-             if (Plus.PeopleApi.getCurrentPerson(mClient) != null) {
+        if (Plus.PeopleApi.getCurrentPerson(mClient) != null) {
             Person currentPerson = Plus.PeopleApi.getCurrentPerson(mClient);
 
-           String personPhotoUrl = currentPerson.getImage().getUrl();
-          // Bitmap bm = BitmapFactory.decodeStream(personPhoto.);
-           //Drawable d = new BitmapDrawable(bm);
-           ImageView image = (ImageView)findViewById(R.id.profileImage);
-           new LoadProfileImage(image).execute(personPhotoUrl.substring(0,
-                   personPhotoUrl.length() - 2)
-                   + PROFILE_PIC_SIZE);
+            String personPhotoUrl = currentPerson.getImage().getUrl();
+            // Bitmap bm = BitmapFactory.decodeStream(personPhoto.);
+            //Drawable d = new BitmapDrawable(bm);
+            ImageView image = (ImageView) findViewById(R.id.profileImage);
+            new LoadProfileImage(image).execute(personPhotoUrl.substring(0,
+                    personPhotoUrl.length() - 2)
+                    + PROFILE_PIC_SIZE);
 
         }
         alarmReceiver.setAlarm(this);
 
-    //    new GETDeviceData().execute();
+        //    new GETDeviceData().execute();
 
 
         new InsertAndVerifyDataTask().execute();
@@ -526,20 +554,19 @@ public class FitnessActivity extends ActionBarActivity implements
         email = Plus.AccountApi.getAccountName(mClient);
 
 
-
         try {
 
             Person currentPerson = Plus.PeopleApi.getCurrentPerson(mClient);
             Account account = new Account();
 
-            LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             //LocationListener listener = new MyLocationListener();
-          //  manager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,10,listener);
-            Location location =  manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            account.setLocation("lattitude :" +location.getLatitude() + " longitude :" +location.getLongitude());
+            //  manager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,10,listener);
+            Location location = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            account.setLocation("lattitude :" + location.getLatitude() + " longitude :" + location.getLongitude());
 
-          //  account.setLocation(currentPerson.getPlacesLived().get(0).getValue());
-         //   Log.i(TAG,currentPerson.getPlacesLived().get(0).toString());
+            //  account.setLocation(currentPerson.getPlacesLived().get(0).getValue());
+            //   Log.i(TAG,currentPerson.getPlacesLived().get(0).toString());
             account.set_id(email);
             Customer customer = new Customer();
             customer.setName(currentPerson.getDisplayName());
@@ -548,7 +575,7 @@ public class FitnessActivity extends ActionBarActivity implements
 
             Device device = new Device();
             StringBuffer stringBuffer = new StringBuffer();
-            for(Device deviceDetails : devices){
+            for (Device deviceDetails : devices) {
                 stringBuffer.append(deviceDetails.getDeviceId());
             }
 
@@ -557,7 +584,7 @@ public class FitnessActivity extends ActionBarActivity implements
             Gson gson = new Gson();
             json = gson.toJson(account);
 
-            URL url = new URL("http://fitnesspayseclipse.mybluemix.net/api/fitnesspays/customer/account");
+            URL url = new URL("http://fitnesspaysapp.eu-gb.mybluemix.net/api/fitnesspays/customer/account");
             httpCon = (HttpURLConnection) url.openConnection();
 
             httpCon.setDoOutput(true);
@@ -567,13 +594,14 @@ public class FitnessActivity extends ActionBarActivity implements
 
 
             OutputStreamWriter out = new OutputStreamWriter(
-                                httpCon.getOutputStream());
-                        out.write(json);
-                        out.close();
+                    httpCon.getOutputStream());
+            out.write(json);
+
+            out.close();
 
 
             Log.i(TAG, String.valueOf(httpCon.getResponseCode()));
-        }  catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -586,13 +614,19 @@ public class FitnessActivity extends ActionBarActivity implements
         if (resultCode == RESULT_OK) if (!mClient.isConnecting() && !mClient.isConnected()) {
             mClient.connect();
         }
-        Log.i(TAG ,String.valueOf(requestCode));
+        Log.i(TAG, String.valueOf(requestCode));
         if (requestCode == 1 && resultCode == RESULT_OK) {
-                Bundle extras = data.getExtras();
-                Bitmap imageBitmap = (Bitmap) extras.get("data");
-            ImageView image = (ImageView)findViewById(R.id.profileImage);
-                image.setImageBitmap(imageBitmap);
-            }
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            imageBytes = stream.toByteArray();
+            // ImageView image = (ImageView)findViewById(R.id.profileImage);
+            //    image.setImageBitmap(imageBitmap);
+
+
+            new GetFeedback().execute();
+        }
 
 
         //Log.i(TAG,data.getDataString());
@@ -600,14 +634,14 @@ public class FitnessActivity extends ActionBarActivity implements
     }
 
 
-
     public String loadFromNetwork(String urlString) throws IOException {
         InputStream stream = null;
-        String str ="";
+        String str = "";
 
         try {
             stream = downloadUrl(urlString);
             str = readIt(stream);
+            Log.i(TAG, str);
         } finally {
             if (stream != null) {
                 stream.close();
@@ -619,6 +653,7 @@ public class FitnessActivity extends ActionBarActivity implements
     /**
      * Given a string representation of a URL, sets up a connection and gets
      * an input stream.
+     *
      * @param urlString A string representation of a URL.
      * @return An InputStream retrieved from a successful HttpURLConnection.
      * @throws IOException
@@ -639,6 +674,7 @@ public class FitnessActivity extends ActionBarActivity implements
 
     /**
      * Reads an InputStream and converts it to a String.
+     *
      * @param stream InputStream containing HTML from www.google.com.
      * @return String version of InputStream.
      * @throws IOException
@@ -647,7 +683,7 @@ public class FitnessActivity extends ActionBarActivity implements
 
         StringBuilder builder = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        for(String line = reader.readLine(); line != null; line = reader.readLine())
+        for (String line = reader.readLine(); line != null; line = reader.readLine())
             builder.append(line);
         reader.close();
         return builder.toString();
@@ -665,7 +701,7 @@ public class FitnessActivity extends ActionBarActivity implements
             String urldisplay = urls[0];
             Bitmap mIcon11 = null;
 
-            Log.i(TAG,urls[0]);
+            Log.i(TAG, urls[0]);
             try {
                 InputStream in = new java.net.URL(urldisplay).openStream();
                 mIcon11 = BitmapFactory.decodeStream(in);
@@ -681,6 +717,131 @@ public class FitnessActivity extends ActionBarActivity implements
             //bmImage.setBackground(circle);
             bmImage.setImageBitmap(result);
 
+        }
+    }
+
+
+    private class GetFeedback extends AsyncTask<Void, Void, Void> {
+        protected Void doInBackground(Void... params) {
+
+         //   String apiURL = "https://api.eu.apim.ibmcloud.com/edwardciggaarnlibmcom2/sb/facereader/readface?client=3b6c7b8a-435b-4d91-87de-2baf8962e41a&clientSecret=D2qN1xG3tE4aU6iL0cL0pS8yC3yD1eX5kC3fL2dR1rU3mP8dU1&GetFacialStates";
+            String apiURL = "https://api.eu.apim.ibmcloud.com/edwardciggaarnlibmcom2/sb/facereader/readface?GetFacialStates";
+            try {
+
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpContext localContext = new BasicHttpContext();
+                HttpPost httpPost = new HttpPost(apiURL);
+                 MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+                   entity.addPart("CustomerKey", new StringBody("875749"));
+
+                    InputStream is = new ByteArrayInputStream(imageBytes);
+                    entity.addPart("MyFile" , new InputStreamBody(is,"image/jpeg"));
+
+
+
+                    httpPost.setEntity(entity);
+
+                    HttpResponse response = httpClient.execute(httpPost, localContext);
+
+                    strJson = readIt(response.getEntity().getContent());
+                Log.i(TAG,strJson);
+
+
+
+//                URL url = new URL(apiURL);
+
+  //              HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+
+    //            httpCon.setDoOutput(true);
+      //          httpCon.setRequestMethod("POST");
+        //        httpCon.setRequestProperty("Content-Type", "application/text");
+
+
+//                OutputStreamWriter out = new OutputStreamWriter(httpCon.getOutputStream());
+
+
+    //            String image = new String(Base64.encode(imageBytes,Base64.DEFAULT));
+  //              out.write(image);
+      //          Log.i(TAG, image);
+        //        Log.i(TAG, String.valueOf(httpCon.getResponseCode()));
+
+          //      strJson = readIt(httpCon.getInputStream());
+
+            //    Log.i(TAG,strJson);
+           //     out.flush();
+            //    out.close();
+            //    httpCon.disconnect();;
+
+
+              //  strJson = loadFromNetwork(apiURL);
+
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+
+                        try {
+
+                            //    Gson gson = new Gson();
+                            // Map<String,Object> jsonMap =  gson.fromJson(strJson, Map.class);
+                            // Iterator iter = jsonMap.keySet().iterator();
+                            //           while(iter.hasNext()){
+//
+                            //                                       Object key = iter.next();
+                            //                                     Log.d(TAG,key.toString());
+                            //                                   Log.i(TAG,jsonMap.get(key).toString());
+                            //
+                            //
+                            //
+                            //                   }
+
+                          /*  int startValidModel = strJson.indexOf(":",strJson.indexOf("ValidModel"));
+                            int endValidModel = strJson.indexOf(",",startValidModel);
+                            String isValid = strJson.substring(startValidModel,endValidModel);
+                            Log.i(TAG,"isValid" + isValid);
+                            if(!Boolean.valueOf(isValid)){
+                                Toast.makeText(FitnessActivity.this, "Could not capture the image.Try again", Toast.LENGTH_LONG)
+                                        .show();
+                                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                                    takePictureIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+                                    startActivityForResult(takePictureIntent, 1);
+                                }
+
+                            }else{
+
+                            } */
+
+                            int start = strJson.indexOf("DominantExpression");
+                            int end = strJson.indexOf(",", start);
+
+                            // int end = strJson.indexOf(strJson.indexOf("DominantExpression"),strJson.indexOf(","));
+//                            Log.i(TAG, strJson.substring(start, end));
+                            //     JSONObject jsonObj = new JSONObject(strJson);
+                            //  String expression =  jsonObj.getString("DominantExpression");
+
+                            //      Log.i(TAG,jsonObj.toString());
+
+                            Toast.makeText(FitnessActivity.this, "You look " + strJson.substring(start, end), Toast.LENGTH_LONG)
+                                    .show();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+
+            }
+
+
+            return null;
         }
     }
 

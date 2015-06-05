@@ -81,7 +81,7 @@ public class TermsAndConditionsActivity extends ActionBarActivity implements Goo
        SignInButton button = (SignInButton)findViewById( R.id.plus_sign_in_button);
         button.setEnabled(false);
         toolbar = (Toolbar) findViewById(R.id.tool_bar); // Attaching the layout to the toolbar object
-
+        toolbar.setLogo(R.mipmap.ic_launcher);
         setSupportActionBar(toolbar);
         switchbtn = (Switch)findViewById(R.id.swtch);
         Log.i(TAG, (String) switchbtn.getTextOff());
@@ -123,27 +123,7 @@ public class TermsAndConditionsActivity extends ActionBarActivity implements Goo
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_termsandconditions, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onClick(View view) {
