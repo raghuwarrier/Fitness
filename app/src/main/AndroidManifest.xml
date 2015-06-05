@@ -79,6 +79,14 @@
             android:name=".FeedbackActivity"
             android:label="@string/title_activity_feedback" >
         </activity>
+        <activity
+            android:name=".SavingsGraphActivity"
+            android:label="@string/title_activity_savings_graph" >
+        </activity>
+        <activity
+            android:name=".UserProfileActivity"
+            android:label="@string/title_activity_user_profile" >
+        </activity>
     </application>
 
 </manifest>
